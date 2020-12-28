@@ -1,0 +1,208 @@
+#:kivy 1.10.1
+
+# ---------- Custom Widgets ----------
+
+<BlackButton@Button>:
+    background_normal: ''
+    background_color: 0, 0, 0, 1
+    font_size: 20
+
+<GreenButton@Button>:
+    background_normal: ''
+    background_color:0, .5, 0, .9
+    font_size: 20
+
+<RedButton@Button>:
+    background_normal: ''
+    background_color:.5, 0, 0, .9
+    font_size: 20
+
+<MyPadding@Label>:
+    size_hint: .5,.5
+
+<MyCustBorder@BoxLayout>:
+    orientation: "horizontal"
+    canvas.before:
+        Color:
+            rgba: .5, .5, .5, 1
+        Line:
+            width: 2
+            rectangle: self.x, self.y, self.width, self.height
+
+# ---------- Popups ----------
+
+<ShowSavedPopup>:
+    title: "Saving"
+    size_hint: .5, .3
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "Changes Saved!"
+            font_size: 20
+
+<PopupConfirmDelete>:
+    title: 'Confirm Course Removal'
+    id: popupconfirmdelete
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "Are you sure you want to remove this course?"
+            font_size: 25
+        BoxLayout:
+            orientation: 'horizontal'
+            RedButton:
+                id: answerbtn
+                text: "Yes"
+                on_press: popupconfirmdelete.on_press_dismiss(True)
+            Button:
+                id: answerbtn
+                text: "No"
+                font_size: 20
+                on_press: popupconfirmdelete.on_press_dismiss(False)
+
+<PopupColor>:
+    title: 'Pick a Color'
+    id: popupcolor
+    BoxLayout:
+        orientation: 'vertical'
+        ColorPicker:
+            id: colorpicker
+        Button:
+            text: 'PICK AND CLOSE'
+            color: 0.435, 0.725, 0.56, 1
+            background_color: 0, 0.26, 0.27, 1
+            size_hint: 1.0, 0.2
+            on_press: popupcolor.on_press_dismiss(colorpicker)
+
+# ---------- Main Panel----------
+<MyPanel>:
+    pos_hint: {'center_x': .5, 'center_y': .5}
+    do_default_tab: False
+
+# ---------- Course Tab ----------
+    TabbedPanelItem:
+        text: 'Course'
+        BoxLayout:
+            orientation: 'vertical'
+            Label:
+                canvas.before:
+                    Color:
+                        rgba: root.bg_cust_colors_conv
+                    Rectangle:
+                        pos: self.pos
+                        size: self.size
+                font_size: 70
+                text: root.text
+            BoxLayout:
+                size_hint: 1, .5
+                orientation: 'horizontal'
+                Button:
+                    background_normal: ''
+                    background_color: root.bg_cust_colors_conv[0], root.bg_cust_colors_conv[1], root.bg_cust_colors_conv[2], .2
+                    font_size: 20
+                    text: "Study Session Done!"
+                    on_press: root.completion(True)
+                BlackButton:
+                    text: "Push Back..."
+                    font_size: 20
+                    on_press: root.completion(False)
+
+# ---------- Settings Tab ----------
+    TabbedPanelItem:
+        text: 'Settings'
+        name: 'modify_values'
+        title: "Modifying Value"
+        BoxLayout:
+            orientation: 'vertical'
+            BoxLayout:
+                orientation: 'horizontal'
+                Spinner:
+                    text: root.text
+                    id: course_choice
+                    size_hint: .7,1
+                    font_size: 20
+                    values: root.list_of_courses + ["(add a course)"]
+                    on_text: root.add_course() if course_choice.text == "(add a course)" else root.course_choice(course_choice.text)
+                Button:
+                    size_hint: .3,1
+                    id: color_button
+                    text: "Change Color"
+                    background_normal: ''
+                    background_color:root.assigned_color
+                    on_press: root.change_color()
+            MyPadding:
+            MyCustBorder:
+                Label:
+                    text: "Edit Name"
+                TextInput:
+                    id: name
+                    text: course_choice.text
+            BoxLayout:
+                orientation: "horizontal"
+                MyCustBorder:
+                    size_hint: .35, 1
+                    Label:
+                        text: "Random Mode"
+                    CheckBox:
+                        id: enabling_random
+                        active: True if root.random_mode == True else False
+                        size_hint: .50, 1
+                        on_active: root.change_random_mode(True) if self.active else root.change_random_mode(False)
+                MyCustBorder:
+                    size_hint: .65, 1
+                    Label:
+                        size_hint: .50, 1
+                        text: "Order" if not enabling_random.active else "Random Mode Activated"
+                    Label:
+                        size_hint: .25, 1
+                        text: str(order.value)
+                        font_size: 30
+                    Slider:
+                        size_hint: .25, 1
+                        id: order
+                        min: 1
+                        max: root.num_courses
+                        value: root.order_value
+                        step: 1
+
+# ---------- For Frequency Functionality Later On ----------
+
+#            BoxLayout:
+#                orientation: "horizontal"
+#                size_hint: .5, 1
+#                MyCustBorder:
+#                    Label:
+#                        text: "Frequency"
+#                    Label:
+#                        text: str(frequency.value)
+#                        font_size: 30
+#                    Slider:
+#                        id: frequency
+#                        min: 1
+#                        max: root.num_courses
+#                        value: root.frequency_value
+#                        step: 1
+            MyPadding:
+            BoxLayout:
+                orientation: 'horizontal'
+                GreenButton:
+                    text: "Save"
+                    on_press: root.save_changes()
+                RedButton:
+                    text: "Remove"
+                    on_press: root.confirm_delete()
+                BlackButton:
+                    text: "Exit"
+                    on_press: exit()
+
+# ---------- Instructions Tab ----------
+    TabbedPanelItem:
+        text: 'Instructions'
+        name: 'instructions'
+        title: "How to Use the Course Tracker"
+        TextInput:
+            background_color: root.bg_cust_colors_conv
+            foreground_color: 1, 1, 1, 1
+            height: self.minimum_height
+            readonly: True
+            text: root.instructions

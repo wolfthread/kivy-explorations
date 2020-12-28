@@ -1,0 +1,13 @@
+1) Choose how many people in total that you want to split in teams.
+
+2) Choose how you want your teams to be split, either in number of teams or by number of team members in each team.
+
+3) Enter your names by clicking on "Enter Names Here..." and then entering a name on a separate line. You can use first name only or first name and last name.
+
+4) Choose how you want to mix your list of people before the TeamMaker splits your group in teams. Choices here are: Random, Alphabetical or As Entered.
+
+5) Click on Make Teams! to create your teams. 
+
+6) Once your teams are created, you will be able to view them, but the data will also be written to a text file named: teams.txt.
+
+Enjoy TeamMaker!

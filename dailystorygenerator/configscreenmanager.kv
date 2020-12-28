@@ -1,0 +1,387 @@
+#: import ListItemButton kivy.uix.listview.ListItemButton
+#: import ListAdapter kivy.adapters.listadapter.ListAdapter
+
+<TopButton@Button>:
+    font_size: 20
+    size_hint: .3, .2
+
+<BackBtn@TopButton>:
+    text: "Back to Home"
+
+<VertLayout@BoxLayout>:
+    spacing: 10
+    orientation: 'vertical'
+
+<HeroLayout@BoxLayout>:
+    orientation: 'horizontal'
+    padding: 10
+    canvas.before:
+        Color:
+            rgba: 0.002,0,0.133,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+<VillainLayout@BoxLayout>:
+    orientation: 'horizontal'
+    padding: 10
+    canvas.before:
+        Color:
+            rgba: 0.200,0.027,0.019,1
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+
+
+<PaddingLabel@Label>:
+    size_hint: 1, .1
+
+<PaddingVert@Label>:
+    size_hint: .1, 1
+
+<EnterButton@Button>:
+    text: "Enter"
+    font_size: 20
+    size_hint: .2, 1
+
+<CustLabel@Label>:
+    font_size: 20
+    size_hint: 1, .2
+
+ConfigScreenManager:
+    Intro:
+    CreateTheme:
+    DeleteTheme:
+    ModifyTheme:
+    DSGConfigurationTool:
+    Error:
+
+<ModifyTheme>:
+    name: 'modify_theme'
+    VertLayout:
+        BackBtn:
+            on_press: root.manager.current = 'intro'
+        Label:
+            text: "Choose a theme to be modified."
+            font_size: 20
+        ListView:
+            adapter: ListAdapter(data=root.stored_themes, args_converter=root.args_converter, cls=ListItemButton)
+
+<DeleteTheme>:
+    name: 'delete_theme'
+    VertLayout:
+        BackBtn:
+            on_press: root.manager.current = 'intro'
+        Label:
+            text: "Choose a theme to be deleted."
+            font_size: 20
+        Label:
+            size_hint: 1, 1
+            canvas.before:
+                Color:
+                    rgba: 1,0,0,.7
+                Rectangle:
+                    pos: self.pos
+                    size: self.size
+            text: "BEWARE:\nAs soon as you click on it,\nthe theme will be deleted"
+            font_size: 20
+        ListView:
+            adapter: ListAdapter(data=root.stored_themes, args_converter=root.args_converter, cls=ListItemButton)
+
+<Intro>:
+    name: 'intro'
+    title: "Create A Theme"
+    BoxLayout:
+        orientation: "vertical"
+        Label:
+            text: "DailyStoryGenerator Configuration Tool"
+            font_size: 30
+            input_filter: lambda text, from_undo: text[:5 - len(self.text)]
+        Button:
+            text: "Create a Theme"
+            font_size: 30
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 1
+                root.manager.current = 'create_theme'
+        Button:
+            text: "Modify a Theme"
+            font_size: 30
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 1
+                root.manager.current = 'modify_theme'
+        Button:
+            text: "Delete a Theme"
+            font_size: 30
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 1
+                root.manager.current = 'delete_theme'
+
+
+<CreateTheme>:
+    name: 'create_theme'
+    title: "Create A Theme"
+    BoxLayout:
+        orientation: "vertical"
+        TopButton:
+            text: "Back to Home"
+            on_press: root.manager.current = 'intro'
+        Label:
+            text: "Enter a theme name: "
+            font_size: 30
+            input_filter: lambda text, from_undo: text[:5 - len(self.text)]
+        TextInput:
+            multiline: False
+            id: custom_theme
+            font_size: 30
+        Button:
+            text: "Configure This Theme!"
+            font_size: 30
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 1
+                root.manager.current = 'config_tool' if root.create_shells() else 'error_screen'
+
+<DSGConfigurationTool>:
+    name: 'config_tool'
+    title: "Create Your Theme"
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            color: 1,1,1,1
+            font_size: 20
+            text: "Enter Values and Press Enter to Save Each Entry.\n(Repeat as needed, as each entry will be saved.)"
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                font_size: 20
+                text: "Heroes and Villains"
+            Button:
+                text: "Create Hero and Villain Pair"
+                font_size: 20
+                size_hint: 1, 1
+                on_press: root.hero_and_villain_creator()
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: "Cities"
+                font_size: 20
+            BoxLayout:
+                orientation: 'horizontal'
+                TextInput:
+                    id: city_name
+                    hint_text: "Enter a city name."
+                    font_size: 20
+                    size_hint: .6, 1
+                EnterButton:
+                    on_press:
+                        root.write_cities()
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: "Story Beginning"
+                font_size: 20
+            BoxLayout:
+                orientation: 'horizontal'
+                TextInput:
+                    id: story_beginning
+                    hint_text:"Enter the beginning of a story."
+                    font_size: 20
+                    size_hint: .6, 1
+                EnterButton:
+                    on_press: root.write_story_beg()
+        BoxLayout:
+            orientation: 'horizontal'
+            Label:
+                text: "Story Trigger"
+                font_size: 20
+            BoxLayout:
+                orientation: 'horizontal'
+                TextInput:
+                    id: trigger
+                    hint_text:"Enter a story trigger."
+                    font_size: 20
+                    size_hint: .6, 1
+                EnterButton:
+                    on_press: root.write_trigger()
+        Button:
+            text: "Go Back To Main Menu."
+            font_size: 20
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 1
+                root.manager.current = 'intro'
+        Button:
+            text: "Save and Quit."
+            font_size: 20
+            on_press: app.stop()
+
+<HeroCreatorPopup>:
+    title: "Create Your Hero and Villain!"
+    BoxLayout:
+        orientation: 'vertical'
+        PaddingLabel:
+        CustLabel:
+            text: "1 - Name Your Hero and Villain:"
+        PaddingLabel:
+        BoxLayout:
+            orientation: 'horizontal'
+            size_hint: 1, .2
+            HeroLayout:
+                TextInput:
+                    id : hero_name
+                    hint_text:"ENTER HERO NAME"
+                    font_size: 15
+                EnterButton:
+                    on_press: root.write_hero()
+            VillainLayout:
+                orientation: 'horizontal'
+                TextInput:
+                    id : villain_name
+                    hint_text:"ENTER VILLAIN NAME"
+                    font_size: 15
+                EnterButton:
+                    on_press: root.write_villain()
+        PaddingLabel:
+        CustLabel:
+            text: "2 - Choose an Image for Your Hero and Villain:"
+        PaddingLabel:
+        BoxLayout:
+            orientation: 'horizontal'
+            HeroLayout:
+                orientation: 'vertical'
+                Label:
+                    size_hint: .1, .1
+                    text: "HERO:"
+                FileChooserListView:
+                    id: filechooser_hero
+                Button:
+                    size_hint: 1, .2
+                    text: "Use this image for this hero"
+                    font_size: 20
+                    on_press: root.copy_hero_file(filechooser_hero.selection[0]) if filechooser_hero.selection else 'error_screen'
+            VillainLayout:
+                orientation: 'vertical'
+                Label:
+                    size_hint: .1, .1
+                    text: "VILLAIN:"
+                FileChooserListView:
+                    id: filechooser_villain
+                Button:
+                    size_hint: 1, .2
+                    text: "Use this image for this villain"
+                    font_size: 20
+                    on_press: root.copy_villain_file(filechooser_villain.selection[0]) if filechooser_villain.selection else 'error_screen'
+        PaddingLabel:
+        Button:
+            size_hint: 1, .2
+            text: "Save And Return"
+            font_size: 20
+            on_press: root.dismiss()
+
+<Error>:
+    name: 'error_screen'
+    title: "ERROR!"
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "Sorry!\nEmpty field, invalid character(s) or already existing theme."
+            font_size: 30
+        Button:
+            text: "Try Again"
+            font_size: 20
+            size_hint: 1, .2
+            on_press:
+                root.manager.transition.direction = 'right'
+                root.manager.transition.duration = 1
+                root.manager.current = 'create_theme'
+
+
+#-------------- POPUPS --------------------
+
+<ShowSavedPopup>:
+    title: "Current Item"
+    size_hint: .2, .2
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            text: "Saved!"
+            font_size: 20
+
+<ModifyThemePopup>:
+    name: 'modify_theme'
+    title: "Modify Your Theme"
+    BoxLayout:
+        orientation: 'vertical'
+        Label:
+            size_hint: 1, .2
+            font_size: 20
+            text: "Select the old value. Enter the new value and choose replace or delete."
+        BoxLayout:
+            orientation: 'horizontal'
+            BoxLayout:
+                orientation: 'vertical'
+                BoxLayout:
+                    orientation: 'vertical'
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        Label:
+                            font_size: 20
+                            text: "Heroes and Villains"
+                        ScrollView:
+                            ListView:
+                                adapter: ListAdapter(data=root.stored_heroes, args_converter=root.args_converter, cls=ListItemButton)
+                    PaddingLabel:
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        Label:
+                            text: "Cities"
+                            font_size: 20
+                        ScrollView:
+                            ListView:
+                                adapter: ListAdapter(data=root.stored_cities, args_converter=root.args_converter, cls=ListItemButton)
+                    PaddingLabel:
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        Label:
+                            text: "Story Beginning"
+                            font_size: 20
+                        ScrollView:
+                            ListView:
+                                adapter: ListAdapter(data=root.stored_beginnings, args_converter=root.args_converter, cls=ListItemButton)
+                    PaddingLabel:
+                    BoxLayout:
+                        orientation: 'horizontal'
+                        Label:
+                            text: "Story Triggers"
+                            font_size: 20
+                        ScrollView:
+                            ListView:
+                                adapter: ListAdapter(data=root.stored_triggers, args_converter=root.args_converter, cls=ListItemButton)
+                    PaddingLabel:
+            PaddingVert:
+            BoxLayout:
+                size_hint: .6, 1
+                orientation: 'vertical'
+                BoxLayout:
+                    orientation: 'horizontal'
+                    TextInput:
+                        id: new_value
+                        hint_text: "Enter a new value.\nFor Heroes and Villains,\nmake sure you keep format\nhero:villain"
+                        font_size: 20
+                        size_hint: .6, 1
+                Button:
+                    text: "Replace"
+                    font_size: 20
+                    on_press: root.replace()
+                Button:
+                    text: "DELETE"
+                    font_size: 20
+        Button:
+            size_hint: 1, .2
+            text: "Save and Close."
+            font_size: 20
+            on_press: root.dismiss()

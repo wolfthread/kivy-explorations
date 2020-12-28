@@ -1,0 +1,172 @@
+<ConfigButton@Button>:
+    background_normal: ''
+    background_color: .4, .5, .6, .85
+    font_size: 30
+
+<CustButton@Button>:
+    background_normal: ''
+    background_color: .1, .2, .3, .85
+    font_size: 30
+
+<TopButton@Button>:
+    background_normal: ''
+    background_color: .1, .2, .3, .85
+    font_size: 20
+    size_hint: .3, .2
+
+<CustLabel@Label>:
+    size_hint: .5, .8
+    font_size: 30
+
+<VertLayout@BoxLayout>:
+    spacing: 10
+    orientation: 'vertical'
+
+<HorLayout@BoxLayout>:
+    spacing: 10
+
+MyScreenManager:
+    IntroScreen:
+    WelcomeScreen:
+
+<IntroScreen>:
+    name: 'intro'
+    VertLayout:
+        Label:
+            text: "Daily Hero Story Generator!"
+            font_size: 30
+        Spinner:
+            background_normal: ''
+            background_color: .2, .3, .4, .85
+            text: "Choose Your Theme"
+            font_size: 30
+            values: root.themes
+            id: theme
+            on_text: root.spinner_clicked(theme.text)
+
+        CustButton:
+            text: 'Generate Your Story!'
+            on_press:
+                root.manager.transition.direction = 'left'
+                root.manager.transition.duration = 1
+                root.manager.current = 'welcome'
+
+<WelcomeScreen>:
+    name: 'welcome'
+    VertLayout:
+        TopButton:
+            text: "Back to Home"
+            on_press: root.manager.current = 'intro'
+        Label:
+            text: "Daily Hero Story Generator"
+            font_size: 30
+        Image:
+            source: root.img_bkg
+            allow_stretch: False
+            keep_ratio: True
+        VertLayout:
+            CustButton:
+                text: 'Choose a Hero at Random'
+                font_size: 30
+                on_press: root.random_hero()
+                on_release: app.root.open_story_screen_popup()
+            CustButton:
+                text: 'Choose Your Own Hero'
+                font_size: 30
+                on_release: app.root.new_hero()
+
+<ScrollingScreen>:
+    HorLayout:
+        orientation: 'vertical'
+        TopButton:
+            text: "Back to Home"
+            on_press: root.manager.current = 'intro'
+        HorLayout:
+            Label:
+                text: "Hero"
+                font_size: 30
+            Label:
+                text: "Enemy"
+                font_size: 30
+        HorLayout:
+            Image:
+                source: root.img_hero
+                allow_stretch: False
+                keep_ratio: True
+            Image:
+                source: root.img_villain
+                allow_stretch: False
+                keep_ratio: True
+        HorLayout:
+            CustButton:
+                size_hint: (.5, .5)
+                text: 'YES'
+                on_release: app.root.open_story_screen_popup()
+            CustButton:
+                size_hint: (.5, .5)
+                text: 'NO'
+                on_release: app.root.new_hero()
+            CustButton:
+                size_hint: (.5, .5)
+                text: 'At Random'
+                on_press: root.random_hero()
+                on_release: app.root.open_story_screen_popup()
+
+#-------------- POPUPS --------------------
+
+<StoryScreenPopUp>:
+    title: " "
+    VertLayout:
+        TopButton:
+            text: "Back"
+            on_press: root.dismiss()
+        HorLayout:
+            Label:
+                text: root.name_hero
+                font_size: 20
+            Label:
+                font_size: 20
+            Label:
+                text: root.name_villain
+                font_size: 20
+        HorLayout:
+            Image:
+                source: root.img_hero
+                allow_stretch: False
+                keep_ratio: True
+            Image:
+                source: root.img_vs
+                allow_stretch: False
+                keep_ratio: True
+            Image:
+                source: root.img_villain
+                allow_stretch: False
+                keep_ratio: True
+        Label:
+            text: "The story takes place at "+root.name_city
+            font_size: 30
+        CustButton:
+            text: "Start the Story"
+            on_press: root.open_begin_story_popup()
+
+<BeginStoryPopUp>:
+    title: " "
+    VertLayout:
+        TopButton:
+            text: "Back"
+            on_press: root.dismiss()
+        Label:
+            text: "The story begins..."
+            font_size: 30
+        ScrollView:
+            size_hint: 1, 1
+            TextInput:
+                background_color: (.7, .8, .9, .85)
+                font_size:20
+                height: self.minimum_height
+                size_hint_y: None
+                readonly: True
+                text: root.beginning+"\n"+root.trigger
+        CustButton:
+            text: "Quit"
+            on_press: app.stop()

@@ -1,0 +1,210 @@
+<CustBoxLayout@BoxLayout>:
+    orientation: "horizontal"
+    height: 30
+
+<BackButton@Button>:
+    text: "Back"
+    font_size: 20
+    size_hint: 1, .2
+
+# ---------- Scaled Label Copyright Ryan Pessa ----------
+<ScaleLabel@Label>:
+	_scale: 1. if self.texture_size[0] < self.width else float(self.width) / self.texture_size[0]
+	canvas.before:
+		PushMatrix
+		Scale:
+			origin: self.center
+			x: self._scale or 1.
+			y: self._scale or 1.
+	canvas.after:
+		PopMatrix
+
+# ---------- Popups ----------
+<InstructionsPopup>:
+    size_hint: 1, .8
+    auto_dismiss: False
+    title: root.title
+    BoxLayout:
+        orientation: "vertical"
+        ScrollView:
+            canvas:
+                Color:
+                    rgba: 0, 100, 100, .5
+            TextInput:
+                height: self.minimum_height
+                readonly: True
+                text: root.instructions
+        BackButton:
+            on_press: root.dismiss()
+
+<TeamsMadePopup>:
+    size_hint: 1, .8
+    auto_dismiss: False
+    title: root.title
+    BoxLayout:
+        orientation: "vertical"
+        CustBoxLayout:            
+            ScrollView:
+                size_hint: 1, 1
+                canvas:
+                    Color:
+                        rgba: root.bground_color_r, root.bground_color_g, root.bground_color_b, .5
+                    Rectangle:
+                        size: self.size
+                        pos: self.pos
+                TextInput:
+                    height: self.minimum_height
+                    color: 0,0,0,1
+                    size_hint_y: None
+                    readonly: True
+                    text: root.contents
+        BackButton:
+            on_press: root.dismiss()
+
+<TeamsPopup>:
+    size_hint: 1, .5
+    auto_dismiss: False
+    title: root.title
+    BoxLayout:
+        orientation: "vertical"
+        Button:
+            text: root.ready_btn_txt
+            font_size: 30
+            size_hint: 1, .2
+            on_press: 
+                root.make_teams()
+                root.open_teams_made_popup()
+        BackButton:
+            on_press: root.dismiss()
+
+<NamesPopup>:
+    title: root.title
+    size_hint: 1, .5
+    auto_dismiss: False
+    BoxLayout:
+        orientation: "vertical"
+        TextInput:
+            id: names
+            size_hint: 1, .8
+        Button:
+            text: root.submit_btn_txt
+            font_size: 20
+            size_hint: 1, .2
+            on_press: root.register()   
+            on_release: root.dismiss()
+        BackButton:
+            on_press: root.dismiss()
+
+# ---------- MainApp ----------
+TeamMakerBoxLayout:
+
+<TeamMakerBoxLayout>:
+    orientation: "vertical"
+    padding: 10
+    spacing: 10
+
+    # ---------- Background ----------
+	canvas.before:
+        Rectangle:
+            pos: self.pos
+            size: self.size
+            source: root.header_image
+
+    # ---------- Instructions ----------
+    CustBoxLayout:
+        Button:
+            text: root.instructions
+            font_size: 20
+            on_press: root.open_instructions_popup()
+
+    # ---------- Number Of People ----------
+    CustBoxLayout:
+        canvas:
+            Color:
+                rgba: root.num_people_color_r, root.num_people_color_g, root.num_people_color_b, .5
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        ScaleLabel:
+            color: 1,1,1,1
+            font_size: 30
+            text: root.num_people
+    CustBoxLayout:
+        ScaleLabel:
+            text: str(num_persons.value)
+            font_size: 30
+        Slider:
+            id: num_persons
+            min: 1
+            max: 100
+            value: 1
+            step: 1
+
+    # ---------- Split Mode ----------
+    CustBoxLayout:
+        canvas:
+            Color:
+                rgba: root.split_team_color_r, root.split_team_color_g, root.split_team_color_b, .5
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        ScaleLabel:
+            text: root.split_team
+            font_size: 30
+    CustBoxLayout:
+        Spinner:
+            text: root.choose
+            font_size: 20
+            values: [root.split_by_team, root.split_by_mem]
+            id: split_mode
+            on_text: root.split_mode(split_mode.text)            
+    CustBoxLayout:
+        ScaleLabel:
+            text: str(split_mode_num.value)
+            font_size: 20
+        Slider:
+            id: split_mode_num
+            min: 1
+            max: num_persons.value
+            value: 1
+            step: 1
+    # ---------- Input ----------
+    CustBoxLayout:
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_x: .25
+            Button:
+                text: root.enter_names
+                font_size: 20
+                on_press: root.open_names_popup()
+    # ---------- Mixing Mode -----------
+    CustBoxLayout:
+        canvas:
+            Color:
+                rgba: root.mix_mode_color_r, root.mix_mode_color_g, root.mix_mode_color_b, .5
+            Rectangle:
+                size: self.size
+                pos: self.pos
+        ScaleLabel:
+            text: root.mix_mode
+            font_size: 30
+
+    CustBoxLayout:
+        orientation: "horizontal"
+        Spinner:
+            text: root.choose
+            font_size: 20
+            values: [root.mode1, root.mode2, root.mode3]
+            id: mix_mode
+            on_text: root.spinner_clicked(mix_mode.text)
+
+
+    # ---------- TeamMaker ----------
+    CustBoxLayout:
+        BoxLayout:
+            orientation: "horizontal"
+            size_hint_x: .25
+            Button:
+                text: root.make_teams_btn
+                font_size: 30
+                on_press: root.open_teams_popup()
